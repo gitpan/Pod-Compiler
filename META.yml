@@ -1,0 +1,14 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Pod-Compiler
+version:      0.20
+version_from: lib/Pod/Compiler.pm
+installdirs:  site
+requires:
+    Pod::Parser:                   1.12
+    Storable:                      0
+    Test::Simple:                  0.44
+    Tree::DAG_Node:                1
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.21

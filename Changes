@@ -1,4 +1,30 @@
+ANNOUNCEMENT
+------------
+
+This package is more or less obsoleted by Pod::Simple.
+I strongly suggest to use Pod::Simple instead, as it
+offers the latest support of perlpodspec and UTF etc.
+
+
 Revision history for Perl extension Pod::Compiler.
+--------------------------------------------------
+
+0.20 marek Fri Jan  9 10:41:22 MET 2004
+  - CPAN#4651 breaking circular references 
+  - CPAN#4652 L<http://foo> unsupported (contrary to pod) 
+    * fixed handling of L<http://url>
+    * fixed Pod::link as_text/as_pod
+    * added t/02link.t
+    * suppress complaint about // in URL nodes
+  - CPAN#4735 L<crontab(5)/"DESCRIPTION"> should be of type man 
+  - CPAN#4736 in Pod::objects L<Pod::doc::collection> should be
+    L<"Pod::doc::collection">
+  - CPAN#4870 missing case insensitive flag(i) for
+    # nonstandard: alttext and url 
+  - CPAN#4871 Pod::link needs more unofficial url types 
+
+  Credits go to http://crazyinsomniac.perlmonk.org/perl/
+  for submitting all of them and providing patches.
 
 0.10 marek Fri Jan 12 14:32:52 MET 2001
   - first version to be put on CPAN

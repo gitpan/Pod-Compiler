@@ -12,7 +12,7 @@ use strict;
 package Pod::objects;
 
 # for CPAN
-$Pod::objects::VERSION = '1.00';
+$Pod::objects::VERSION = '1.01';
 
 =head1 NAME
 
@@ -1545,7 +1545,7 @@ sub as_text {
   my $page = $self->{_page}.
     (length $self->{_mansect} ? '('.$self->{_mansect}.')' : '');
   if($type eq 'url') {
-    return $page;
+    return $node;
   }
   (!$node ? '' : $type eq 'item' ?
     "the $node entry" : "the section on $node" ) .
@@ -1645,6 +1645,7 @@ sub as_pod {
   my $node = $self->node();
   my $type = $self->type() || '';
   if($type eq 'url') {
+    $link = $node unless length $link;
     _escape_brackets($link);
   }
   elsif($node) {
@@ -1950,7 +1951,7 @@ sub texts
 =head2 Pod::doc
 
 A convenience class for storing POD document information, especially by
-converters. See also L<Pod::doc::collection>.
+converters. See also L<"Pod::doc::collection">.
 
 =cut
 

@@ -16,6 +16,7 @@ my %PL_FILES = map { ($a = $_) =~ s/\.PL// ? ($_,$a) : () } glob('scripts/*.PL')
 # prerequite modules
 my %PREREQ_PM = (
     'Pod::Parser'       => 1.12,
+    'Test::Simple'      => 0.44,
     'Tree::DAG_Node'    => 1,
     'Storable'          => 0
 );

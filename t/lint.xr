@@ -63,6 +63,11 @@ This Z<> has contents.
 This one Z<> too.
 See also L</fourth>.
 
+=item sixth
+
+a URL link L<http://www.perl.org>
+and L<The Perl Home Page|http://www.perl.org>
+
 =back
 
 And now for an index entry X<444>.

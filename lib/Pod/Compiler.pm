@@ -48,7 +48,7 @@ require Pod::Parser;
 require Pod::objects;
 #$Tree::DAG_Node::Debug = 1;
 
-$Pod::Compiler::VERSION = '0.10';
+$Pod::Compiler::VERSION = '0.20';
 @Pod::Compiler::ISA = qw(Exporter Pod::Parser);
 
 @Pod::Compiler::EXPORT = qw();
@@ -355,6 +355,13 @@ sub _make_node
   $node;
 }
 
+# make sure to break circular references correctly
+sub DESTROY {
+  my $self = shift;
+  delete $self->{_current};
+  delete $self->{_root};
+}
+
 ##############################################################################
 # overrides for Pod::Parser
 
@@ -654,18 +661,16 @@ sub command
     if($paragraph =~ s/^\s*(\S+)[ \t]*([^\n]*)\n*//s) {
       ($type,$args) = ($1,$2);
       $args =~ s/\s+$//s;
-    } else {
-      $self->_msg('ERROR',
-        "ignoring =for without formatter specification at line $line");
-      $paragraph = ''; # do not expand paragraph below
-    }
-    if($paragraph =~ /\S/s) {
       my $forp = Pod::for->new;
       $forp->type($type);
       $forp->args($args);
       $forp->content($paragraph);
       # TODO check if in =begin?!?
       $self->{_current}->add_daughter($forp);
+    } else {
+      $self->_msg('ERROR',
+        "ignoring =for without formatter specification at line $line");
+      $paragraph = ''; # do not expand paragraph below
     }
   }
 
@@ -924,9 +929,10 @@ sub my_expand_seq
     # man page sections. But this collides with L<func()> that is supposed
     # to point to an internal funtion...
     my $page_rx = '[\w.]+(?:::[\w.]+)*(?:[(]\d\w?[)]|)';
-    my $url_rx = '(?:http|ftp|mailto|news):.+';
+    my $url_rx = '(?:\w{3,8}):[^:].*';
 
     my ($alttext,$page,$type,$node) = (undef,'','','');
+    my $mansect = '';
 
     if(m!^($page_rx)$!o) {
       $page = $1;
@@ -983,7 +989,7 @@ sub my_expand_seq
       $type = 'item';
     }
     # nonstandard: alttext and url
-    elsif(m!^(.*?)\s*[|]\s*($url_rx)$!o) {
+    elsif(m!^(.*?)\s*[|]\s*($url_rx)$!oi) {
       ($alttext, $node) = ($1,$2);
       $type = 'url';
     }
@@ -1004,14 +1010,11 @@ sub my_expand_seq
       }
     }
 
-    my $mansect = '';
     if($page =~ s/[(](\d\w?)[)]$//) {
       $mansect = $1;
       if($page =~ /::/) {
         $self->_msg('ERROR', "(section) in L<$page($mansect)> at line $line deprecated");
         $mansect = '';
-      } elsif(length $node) {
-        $self->_msg('WARNING', "L<$page> to a POD document should be written without ($mansect) at line $line");
       } else {
         $type = "man";
       }
@@ -1020,7 +1023,7 @@ sub my_expand_seq
     if(length $page && $page =~ /[(]\w*[)]$/) {
       $self->_msg('WARNING', "(section) in L<$page> at line $line deprecated");
     }
-    if(length $node && $node =~ m:[|/]:) {
+    if(length $node && $node =~ m:[|/]: && $type ne 'url') {
       $self->_msg('WARNING', "node '$node' in L<> at line $line contains non-escaped | or /");
     }
     my $link = Pod::link->new;

@@ -8,5 +8,7 @@ lib/Pod/objects.pm
 scripts/podlint.PL
 t/00load.t
 t/01lint.t
+t/02link.t
 t/lint.pod
 t/lint.xr
+META.yml
