@@ -1,0 +1,12 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+TODO
+lib/Pod/Compiler.pm
+lib/Pod/objects.pm
+scripts/podlint.PL
+t/00load.t
+t/01lint.t
+t/lint.pod
+t/lint.xr
