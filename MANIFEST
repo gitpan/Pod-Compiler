@@ -12,3 +12,4 @@ t/02link.t
 t/lint.pod
 t/lint.xr
 META.yml
+META.json                                Module JSON meta-data (added by MakeMaker)

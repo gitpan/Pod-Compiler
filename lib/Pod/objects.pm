@@ -12,7 +12,7 @@ use strict;
 package Pod::objects;
 
 # for CPAN
-$Pod::objects::VERSION = '1.01';
+$Pod::objects::VERSION = '1.02';
 
 =head1 NAME
 
@@ -160,7 +160,7 @@ from the file system.
 
 The creation method takes an optional argument C<-linelength =E<gt>
 num>. If this is set to a non-zero value, the B<as_pod> method of
-B<Pod::paragraph> will reformat the POD to use as much of each line up
+B<Pod::para> will reformat the POD to use as much of each line up
 to I<num> characters.
 
 =cut
@@ -372,7 +372,7 @@ sub as_text($)
 
 ##############################################################################
 
-=head2 Pod::paragraph
+=head2 Pod::para
 
 This represents a simple text paragraph. See B<Pod::root> above for an
 option that forces the reformatting of the POD code of a paragraph to a
@@ -381,9 +381,9 @@ whitespace is I<not> affected.
 
 =cut
 
-package Pod::paragraph;
+package Pod::para;
 
-@Pod::paragraph::ISA = qw(Pod::_obj);
+@Pod::para::ISA = qw(Pod::_obj);
 
 sub as_pod($)
 {
@@ -394,7 +394,7 @@ sub as_pod($)
   # - no preceding node and mother is not a list
   # - preceding node
   my $p = '';
-  if(!$pre && (!$mom || !$mom->isa('Pod::list'))) {
+  if(!$pre && (!$mom || !$mom->isa('Pod::clist'))) {
     $p = "=pod\n\n";
   }
   if($pre && $pre->isa('Pod::perlcode')) {
@@ -586,16 +586,16 @@ sub as_text($)
 
 ##############################################################################
 
-=head2 Pod::list
+=head2 Pod::clist
 
 This stores everything that is enclosed by C<=over ... =back>. Note that
 such a brace may not span C<=head>s.
 
 =cut
 
-package Pod::list;
+package Pod::clist;
 
-@Pod::list::ISA = qw(Pod::_obj);
+@Pod::clist::ISA = qw(Pod::_obj);
 
 sub initialize
 {

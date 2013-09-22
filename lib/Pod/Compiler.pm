@@ -48,7 +48,7 @@ require Pod::Parser;
 require Pod::objects;
 #$Tree::DAG_Node::Debug = 1;
 
-$Pod::Compiler::VERSION = '0.20';
+$Pod::Compiler::VERSION = '0.21';
 @Pod::Compiler::ISA = qw(Exporter Pod::Parser);
 
 @Pod::Compiler::EXPORT = qw();
@@ -397,10 +397,10 @@ sub preprocess_paragraph
 sub end_pod {
   my $self = shift;
   my $c = $self->{_current};
-  if($c->isa('Pod::list')) {
+  if($c->isa('Pod::clist')) {
     $self->_msg('ERROR', "=over at line ".
       $c->line()." without =back at EOF");
-    unless($c->daugthers) {
+    unless($c->daughters) {
       $self->_msg('WARNING', "discarding empty list");
       $c->detach();
     }
@@ -467,7 +467,7 @@ sub command
         "Not a numeric argument for =over: '$paragraph'");
     }
     # start a new list
-    my $list = Pod::list->new;
+    my $list = Pod::clist->new;
     $list->indent($indent);
     $list->line($line); # remember start line of list
     $self->{_current}->add_daughter($list);
@@ -481,10 +481,10 @@ sub command
       # TODO ??? POD commands in begin block?
       $list = $list->mother;
     }
-    unless($list->isa('Pod::list')) {
+    unless($list->isa('Pod::clist')) {
       $self->_msg('ERROR', "=item without previous =over");
       # auto-open a list
-      my $autolist = Pod::list->new;
+      my $autolist = Pod::clist->new;
       $autolist->line($line);
       $autolist->autoopen(1);
       $list->add_daughter($autolist);
@@ -544,7 +544,7 @@ sub command
 
   elsif($cmd eq 'back') {
     # check if we have an open list
-    unless($self->{_current}->isa('Pod::list')) {
+    unless($self->{_current}->isa('Pod::clist')) {
       $self->_msg('ERROR', "=back without previous =over at line $line");
     }
     else {
@@ -569,7 +569,7 @@ sub command
     my $level = $1;
     # check if there is an open list
     my $current = $self->{_current};
-    while($current->isa('Pod::list')) {
+    while($current->isa('Pod::clist')) {
       unless($current->autoopen) {
         $self->_msg('ERROR', "=over at line ". $current->line() .
           " without closing =back (at $cmd at line $line)");
@@ -769,7 +769,7 @@ sub textblock {
   if($current->isa('Pod::begin')) {
     $current->addchunk($paragraph);
   } else {
-    my $par = Pod::paragraph->new;
+    my $par = Pod::para->new;
     $par->line($line);
     $par->add_daughters($self->interpolate($paragraph,$line));
     # check for non-empty content
@@ -996,7 +996,13 @@ sub my_expand_seq
     # must be an item or a "malformed" head (without "")
     else {
       $self->_msg('WARNING', "link L<$_> type not clear, assuming 'item' at line $line");
-      $node = $_;
+      # alttext and something
+      if( /([^|]*)\|(.*)/ ) {
+	$alttext = $1;
+        $node = $2;
+      } else {
+        $node = $_;
+      }
       $type = 'item';
     }
 
